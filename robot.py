@@ -33,18 +33,29 @@ class ArrayStack:
 class LinkedStack:
     def __init__(self):
         self.__contents = linked_list.LinkedList()
+        self.size = 0
 
     def push(self, elem):
         self.__contents.add_head(linked_list.Node(elem))
+        self.size += 1
 
     def pop(self):
         self.__contents.remove_head()
+        self.size -= 1
 
     def peek(self):
         if self.__contents.head():
             return self.__contents.head().get_element()
         else:
             return None
+
+    def print_stack(self):
+        contents = []
+        while self.size > 1:
+            contents.append(self.peek())
+            self.pop()
+
+        return contents
 
 
 class World:
@@ -64,85 +75,33 @@ class World:
             return False
         if not (y >= 0 and y < self.height):
             return False
-        if self.grid[x][y] == 0:
-            return True
-        else:
-            return False
+        return self.grid[x][y] == 0
 
 
 class Robot:
     def __init__(self, location, goal):
         self.__location = location
         self.__goal = goal
-        self.path_list = []
-        self.path_count = 0
+        self.goal_reached = False
 
     def get_location(self):
         return self.__location
 
-
-    def goal_reached(self):
-        return self.__location == self.__goal
-
-
     def move(self, x, y):
-        self.__location = [x, y]
-
-
-    def find_feasible(self, world, prev_loc, location):
-        east = [location[0], location[1] + 1]
-        west = [location[0], location[1] - 1]
-        north = [location[0] + 1, location[1]]
-        south = [location[0] - 1, location[1]]
-
-        feasible = []
-
-        for direction in [north, south, east, west]:
-            if (direction != prev_loc) and world.is_feasible(direction[0], direction[1]):
-                feasible.append(direction)
-
-        return feasible
-
-    # def find_path(self, world, current_path, location):
-    #
-    #     if not world.is_feasible(location[0], location[1]):
-    #         return None
-    #
-    #     if location == self.__goal:
-    #         print("path found!")
-    #         return current_path
-    #
-    #     # previous_location = current_path.peek()
-    #
-    #     # feasible = self.find_feasible(world, previous_location, location)
-    #
-    #     if feasible:
-    #         print("Feasible directions:", feasible)
-    #         path_copy = deepcopy(current_path)
-    #         path_copy.push(location)
-    #         print(path_copy.peek())
-    #         for direction in feasible:
-    #             self.find_path(world, path_copy, direction)
-    #     else:
-    #         print("Process Killed")
-    #         return False
+        self.__location = []
 
 
     def find_path(self, world, current_path, location):
 
-        print(location)
+        if self.goal_reached:
+            return False
 
         if not world.is_feasible(location[0], location[1]):
             return False
 
-        if self.path_count >= 50:
-            return True
-
         if location == self.__goal:
-            print("path found!")
-            self.path_count += 1
-            self.path_list.append(current_path)
-            return True
+            self.goal_reached = True
+            return current_path
 
         east = [location[0], location[1] + 1]
         west = [location[0], location[1] - 1]
@@ -154,16 +113,6 @@ class Robot:
         path_copy.push(location)
         return (self.find_path(world, path_copy, north) or self.find_path(world, path_copy, south) or
                 self.find_path(world, path_copy, east) or self.find_path(world, path_copy, west))
-
-    def compare_paths(self):
-        smallest = self.path_list[0]
-
-        for path in self.path_list:
-            print(path.size)
-            if path.size < smallest.size:
-                smallest = path
-
-        return smallest
 
 
 def parse_file(fname):
@@ -190,24 +139,32 @@ def parse_file(fname):
 
 
 def main():
-    height, width, walls, robot_location, goal = parse_file("world1.txt")
+    height, width, walls, robot_location, goal = parse_file("joe_test.txt")
     print("Goal:", goal)
     world = World(height, width)
+    # world.make_walls([[0, 0], [0,1], [0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]])
     world.make_walls(walls)
 
+
     robot = Robot(robot_location, goal)
-    start_path = ArrayStack()
+    start_path = LinkedStack()
     start_path.push(robot.get_location())
 
     pprint(world.grid)
-    robot.find_path(world, start_path, robot.get_location())
-    print("Path is", robot.compare_paths().size, "squares")
+    path = robot.find_path(world, start_path, robot.get_location())
+    if path:
+        print("Path found! Size:", path.size)
+        print("Route:", path.print_stack())
+        pprint(world.grid)
+
+    else:
+        print("No path found")
+        pprint(world.grid)
 
 
 
 if __name__=="__main__":
     main()
-
 
 
 

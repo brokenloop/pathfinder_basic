@@ -84,12 +84,12 @@ class Robot:
 
     def find_path(self, world, current_path, location):
 
-        if not world.is_feasible(location[0], location[1]):
-            return False
-
         if self.path_length:
             if len(current_path) >= self.path_length:
                 return False
+
+        if not world.is_feasible(location[0], location[1]):
+            return False
 
         if location in current_path:
             return False
@@ -101,14 +101,14 @@ class Robot:
             print("Current smallest:", self.path_length)
             return True
 
+        path_copy = list(current_path)
+        path_copy.append(location)
+
         east = [location[0], location[1] + 1]
         west = [location[0], location[1] - 1]
         north = [location[0] + 1, location[1]]
         south = [location[0] - 1, location[1]]
-
-        path_copy = list(current_path)
-        path_copy.append(location)
-
+        #
         self.find_path(world, path_copy, north)
         self.find_path(world, path_copy, south)
         self.find_path(world, path_copy, east)
@@ -155,7 +155,9 @@ def parse_file(fname):
 
 def main():
     height, width, walls, robot_location, goal = parse_file("world1.txt")
+
     print("Goal:", goal)
+
 
     world = World(height, width)
     world.make_walls(walls)
@@ -165,8 +167,11 @@ def main():
 
     pprint(world.grid)
     robot.find_path(world, start_path, robot.get_location())
-    smallest, len_smallest = robot.compare_paths()
-    print("Smallest path is", smallest, "\nTotal:", len_smallest, "squares")
+    try:
+        smallest, len_smallest = robot.compare_paths()
+        print("Smallest path is", smallest, "\nTotal:", len_smallest, "squares")
+    except:
+        print("No path")
 
 if __name__=="__main__":
     main()
