@@ -192,18 +192,16 @@ def parse_file(fname):
 def main():
     height, width, walls, robot_location, goal = parse_file("world1.txt")
     print("Goal:", goal)
-    # goal = [0, 5]
-    # world = World(3, 10)
-    world = World(40, 40)
+    world = World(height, width)
     world.make_walls(walls)
 
-    robot = Robot([0, 0], [20, 29])
+    robot = Robot(robot_location, goal)
     start_path = ArrayStack()
     start_path.push(robot.get_location())
 
     pprint(world.grid)
     robot.find_path(world, start_path, robot.get_location())
-    print("Smallest path is", robot.compare_paths().size, "squares")
+    print("Path is", robot.compare_paths().size, "squares")
 
 
 

@@ -157,10 +157,10 @@ def main():
     height, width, walls, robot_location, goal = parse_file("world1.txt")
     print("Goal:", goal)
 
-    world = World(15, 15)
+    world = World(height, width)
     world.make_walls(walls)
 
-    robot = Robot(robot_location, [14, 14])
+    robot = Robot(robot_location, goal)
     start_path = []
 
     pprint(world.grid)
