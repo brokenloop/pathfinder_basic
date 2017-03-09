@@ -1,50 +1,7 @@
 import os
 from copy import deepcopy
 from pprint import *
-from src import linked_list
-
-
-
-class ArrayStack:
-    def __init__(self):
-        self.size = 0
-        self.__contents = []
-
-    def push(self, elem):
-        self.__contents.append(elem)
-        self.size += 1
-
-    def pop(self):
-        self.__contents.pop(1)
-        self.size -= 1
-
-    def peek(self):
-        if self.size > 0:
-            return self.__contents[self.size - 1]
-        else:
-            return None
-
-    def print_stack(self):
-        while self.size > 1:
-            print(self.peek())
-            self.pop()
-
-
-class LinkedStack:
-    def __init__(self):
-        self.__contents = linked_list.LinkedList()
-
-    def push(self, elem):
-        self.__contents.add_head(linked_list.Node(elem))
-
-    def pop(self):
-        self.__contents.remove_head()
-
-    def peek(self):
-        if self.__contents.head():
-            return self.__contents.head().get_element()
-        else:
-            return None
+from src import ADT
 
 
 class World:

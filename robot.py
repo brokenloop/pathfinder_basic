@@ -1,61 +1,7 @@
 import os
 from copy import deepcopy
 from pprint import *
-from src import linked_list
-
-
-
-class ArrayStack:
-    def __init__(self):
-        self.size = 0
-        self.__contents = []
-
-    def push(self, elem):
-        self.__contents.append(elem)
-        self.size += 1
-
-    def pop(self):
-        self.__contents.pop(1)
-        self.size -= 1
-
-    def peek(self):
-        if self.size > 0:
-            return self.__contents[self.size - 1]
-        else:
-            return None
-
-    def print_stack(self):
-        while self.size > 1:
-            print(self.peek())
-            self.pop()
-
-
-class LinkedStack:
-    def __init__(self):
-        self.__contents = linked_list.LinkedList()
-        self.size = 0
-
-    def push(self, elem):
-        self.__contents.add_head(linked_list.Node(elem))
-        self.size += 1
-
-    def pop(self):
-        self.__contents.remove_head()
-        self.size -= 1
-
-    def peek(self):
-        if self.__contents.head():
-            return self.__contents.head().get_element()
-        else:
-            return None
-
-    def print_stack(self):
-        contents = []
-        while self.size > 1:
-            contents.append(self.peek())
-            self.pop()
-
-        return contents
+from src import ADT
 
 
 class World:
@@ -147,7 +93,7 @@ def main():
 
 
     robot = Robot(robot_location, goal)
-    start_path = LinkedStack()
+    start_path = ADT.LinkedStack()
     start_path.push(robot.get_location())
 
     pprint(world.grid)
