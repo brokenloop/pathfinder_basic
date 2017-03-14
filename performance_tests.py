@@ -21,6 +21,7 @@ def test_performance(type):
 
     # Plot the running times
     plt.plot(running_times, 'bx')
+    plt.title(type)
     plt.xlabel('Size of N (x 1000)')
     plt.ylabel('Time')
     plt.show()

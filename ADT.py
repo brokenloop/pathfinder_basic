@@ -76,20 +76,25 @@ class ArrayStack:
             return None
 
     def print_stack(self):
-        while self.size > 1:
-            print(self.peek())
+        contents = []
+        while self.size > 0:
+            contents.append(self.peek())
             self.pop()
+        return contents
 
 
 class LinkedStack:
     def __init__(self):
         self.__contents = LinkedList()
+        self.size = 0
 
     def push(self, elem):
         self.__contents.add_head(Node(elem))
+        self.size += 1
 
     def pop(self):
         self.__contents.remove_head()
+        self.size -= 1
 
     def peek(self):
         if self.__contents.head():
@@ -97,14 +102,17 @@ class LinkedStack:
         else:
             return None
 
+    def print_stack(self):
+        contents = []
+        while self.size > 0:
+            contents.append(self.peek())
+            self.pop()
+        return contents
+
 
 if __name__ == "__main__":
 
-    l = LinkedList()
-    l.add_head(Node("toto"))
-    l.add_head(Node(2))
-    l.add_tail(Node(9))
-    l.add_tail(Node(67))
-    l.add_head(Node(1))
-    l.add_tail(Node("tail"))
-    print(l.head().get_next())
+    s = LinkedStack()
+    s.push("haha")
+    s.push(5)
+    print(s.print_stack())

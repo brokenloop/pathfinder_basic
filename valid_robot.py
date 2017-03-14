@@ -20,15 +20,6 @@ class World:
             y = int(coord[1])
             self.grid[x][y] = 1
 
-    def unmake_walls(self, mylist):
-        """ This function takes a list or coordinates (mylist) and uses them to remove walls from self.grid
-            Walls are stored as 1, whereas open space is stored as 0
-         """
-        for coord in mylist:
-            x = int(coord[0])
-            y = int(coord[1])
-            self.grid[x][y] = 0
-
     def is_feasible(self, x, y):
         """ This function checks that the coordinates x and y refer to a
             coordinate within the grid that is passable (0)
@@ -45,10 +36,6 @@ class Robot:
         self.__location = location
         self.__goal = goal
         self.goal_reached = False
-        self.path_list = []
-        self.smallest = None
-        self.smallest_length = None
-
 
     def get_location(self):
         """ Returns the location of the robot
@@ -61,44 +48,35 @@ class Robot:
             detailed explanation can be found in the report.
         """
 
-        # checks that this path isn't longer than the shortest path
-        if self.smallest != None:
-            if current_path.size >= self.smallest.size:
-                return False
+        # Checks whether goal has already been found
+        if self.goal_reached:
+            return False
 
-        # checks that this location is feasible
+        # Checks whether location is feasible
         if not world.is_feasible(location[0], location[1]):
             return False
 
-        # checks whether this location is the goal
-        # if it is, information is stored in self.smallest and self.path_length
+        # Checks whether location is goal
+        # If true, it lets other functions know with self.goal_reached
         if location == self.__goal:
-            path_copy = deepcopy(current_path)
-            self.smallest = path_copy
-            self.path_length = path_copy.size
-            print("Current smallest:", self.smallest.size)
-            return False
+            self.goal_reached = True
+            return current_path
 
+        # Marks location as impassable, creates copy of current_path
+        world.make_walls([[location[0], location[1]]])
+        path_copy = deepcopy(current_path)
+        path_copy.push(location)
 
         east = [location[0], location[1] + 1]
         west = [location[0], location[1] - 1]
         north = [location[0] + 1, location[1]]
         south = [location[0] - 1, location[1]]
 
-        # push location to stack, mark location impassable
-        current_path.push(location)
-        world.make_walls([[location[0], location[1]]])
-
-        # call function recursively in all directions
-        self.find_path(world, current_path, north)
-        self.find_path(world, current_path, south)
-        self.find_path(world, current_path, east)
-        self.find_path(world, current_path, west)
-
-        # pop location from stack, mark location as passable
-        current_path.pop()
-        world.unmake_walls([location])
-        return False
+        # Recursively calls self in all directions
+        return (self.find_path(world, path_copy, north) or
+                self.find_path(world, path_copy, south) or
+                self.find_path(world, path_copy, east) or
+                self.find_path(world, path_copy, west))
 
 
 def parse_file(fname):
@@ -140,35 +118,37 @@ def parse_file(fname):
     return int(height), int(width), walls, robot_location, goal
 
 
-def main():
-    """ Main function for the program
+def main(fname):
+    """ Main function of the program
     """
-    # parse input file, assign contents to variables
-    height, width, walls, robot_location, goal = parse_file("world1.txt")
 
-    # initialise world object
-    world = World(8, 8)
+    # parse file for information
+    height, width, walls, robot_location, goal = parse_file(fname)
+
+    # initialize world
+    world = World(height, width)
     world.make_walls(walls)
 
-    # initialise robot object
-    robot = Robot(robot_location, [5, 5])
+    # initialise robot & path stack
+    robot = Robot(robot_location, goal)
     start_path = ADT.LinkedStack()
-    start_path.push(robot_location)
+    start_path.push(robot.get_location())
 
-    # print world & robot info
-    print("robot_location:", robot_location)
+    print("Robot location:", robot_location)
     print("Goal:", goal)
     pprint(world.grid)
 
-    # find shortest path
-    robot.find_path(world, start_path, robot.get_location())
-    if robot.smallest:
-        print("Smallest path: ", robot.smallest.print_stack())
+    # call path-finding algorithm
+    path = robot.find_path(world, start_path, robot.get_location())
+    if path:
+        print("Path found! Size:", path.size)
+        print("Route:", path.print_stack())
+
     else:
         print("No path found")
 
 
 if __name__=="__main__":
-    main()
+    main("world1.txt")
 
 
